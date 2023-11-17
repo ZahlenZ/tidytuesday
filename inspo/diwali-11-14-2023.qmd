@@ -1,9 +1,8 @@
 ---
-author: Zahlen Zbinden 
+author: nrennie 
 title: Diwali Sales
 date: 11-14-23
 format: pdf
-
 ---
 
 ## Load Packages 
@@ -22,7 +21,6 @@ library(showtext)
 library(patchwork)
 library(camcorder)
 library(ggtext)
-library(nrBrand)
 library(ggsankey)
 library(glue) 
 ```
@@ -58,5 +56,96 @@ title_font <- "salt"
 ## Data Wrangling
 
 ```{r}
-plot_data
+plot_data <- house |>
+              select(User_ID, Zone, State, Gender, Marital_Status, "Age Group") |>
+              distinct() |>
+              mutate(
+                Gender = case_when(
+                  Gender == "M" ~ "Male",
+                  Gender == "F" ~ "Female"
+                ),
+                Marital_Status = case_when(
+                  Marital_Status == 0 ~ "Single",
+                  Marital_Status == 1 ~ "Married"
+                )
+              )
+
+State_levels <- plot_data |>
+                  select(Zone, State) |>
+                  distinct() |>
+                  arrange(Zone) |>
+                  pull(State)
+
+sankey_data <- plot_data |>
+                make_long(State, Zone, Gender, Marital_Status, "Age Group") |> # This call adds in the node and next node
+                mutate(
+                  node = factor(node),
+                  node = fct_relevel(node, State_levels)
+                )
+
+view(sankey_data)
+```
+
+## Define Text
+
+```{r}
+title <- "Diwali Sales"
+st <- "by customer segment"
+```
+
+## Plot
+
+```{r}
+ggplot(
+  data = sankey_data,
+  aes(
+    x = x,
+    next_x = next_x,
+    node = node,
+    next_node = next_node,
+    label = node
+  ),
+) +
+  geom_sankey(
+    flow.colour = text_col,
+    flow.fill = highlight_col,
+    flow.alpha = .6,
+    linewidth = .1,
+    node.fill = text_col,
+    node.colour = text_col
+  ) +
+  geom_sankey_label(
+    size = 5,
+    color = text_col, 
+    fill = "gray30",
+    width = .2
+  ) +
+  labs(
+    title = title,
+    subtitle = st
+  ) +
+  theme_void() +
+  theme(
+    legend.position = "none",
+    plot.margin = margin(5, 0, 5, 0),
+    plot.background = element_rect(fill = bg_color, colour = bg_color),
+    panel.background = element_rect(fill = bg_color, colour = bg_color),
+    plot.title = element_textbox_simple(
+      colour = text_col,
+      hjust = .5,
+      halign = .5,
+      size = 60,
+      margin = margin(b = 10, t = 10),
+      lineheight = 0.5,
+      family = title_font
+    ),
+    plot.subtitle = element_textbox_simple(
+      colour = text_col,
+      hjust = .5,
+      halign = .5,
+      margin = margin(b = -20, t = 0),
+      lineheight = .5,
+      family = body_font
+    )
+  )
 ```
