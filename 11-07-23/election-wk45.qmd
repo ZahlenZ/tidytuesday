@@ -16,10 +16,6 @@ library(tidyverse)
 library(tidytuesdayR)
 library(waffle)
 library(gt)
-
-item_color <- "#234F1E"
-background_color <- "#351E10"
-plot_item_color <- "#795C32"
 ```
 
 ## Load Data
@@ -53,7 +49,6 @@ length(unique(house$state))
 
 ## Wrangle Data
 
-
 ```{r}
 house <- house |>
           mutate(
@@ -64,120 +59,110 @@ house <- house |>
             )
           ) |>
           group_by(party) |>
-          mutate(tot_votes = sum(candidatevotes)) |>
+          mutate(party_votes = sum(candidatevotes)) |>
           ungroup() |>
           mutate(
             party = factor(
               party,
-              levels = unique(party[order(desc(tot_votes))]),
+              levels = unique(party[order(desc(party_votes))]),
               ordered = TRUE
             )
           )
 ```
 
-
-## Top 10 total elected officials by party from 1976 to present
-
-```{r}
-top_10 <- house |>
-            select("party") |>
-            group_by(party) |>
-            summarise(count = n()) |>
-            arrange(desc(count)) |>
-            slice(1:10)
-```
-
-```{r}
-ggplot(top_10, aes(x = count, y = fct_reorder(party, count))) +
-    geom_point(color = item_color, size = 4) +
-    geom_segment(
-        aes(
-          x = 0,
-          xend = count,
-          y = party,
-          yend = party
-        ),
-        size = 2,
-        color = item_color
-    ) +
-    scale_x_continuous(expand = expansion(mult = c(0, 0.1))) +
-    labs(
-      title = "Total house of rep party wins",
-      subtitle = "1976 to Current",
-      x = "Total Wins",
-      y = "Party",
-      caption = "Tidy Tuesday 11-07-2023"
-    )
-```
-
-## Top 3 parties by year
-
-```{r}
-top_3_yearly <- house %>%
-                  group_by(year, party) %>%
-                  summarise(count = n()) %>%
-                  filter(
-                    party == "DEMOCRAT" | party == "REPUBLICAN" | party == "LIBERTARIAN"
-                  ) 
-```
-
-```{r}
-election_colors <- c("DEMOCRAT" = "darkblue", "REPUBLICAN" = "firebrick", "LIBERTARIAN" = "#1c4d1a")
-ggplot(top_3_yearly, aes(x = year, y = count, fill = party)) +
-    geom_bar(
-      position = "stack", 
-      stat = "identity",
-      width = 1.5
-    ) +
-    labs(
-      x = "Year",
-      y = "Count",
-      caption = "Tidy Tuesday 11-07-2023"
-    ) +
-    scale_fill_manual(values = election_colors, name = "Party Affiliation") +
-    scale_x_continuous(
-      breaks = seq(from = 1976, to = 2022, by = 2),
-    ) + 
-    theme( 
-      axis.text.x = element_text(angle = 45, hjust = 1)
-    ) 
-```
-
-## House seats year by year
-
-Find top 10 parties by candidate votes
-
-```{r}
-top_10 <- house |>
-            group_by(party) |>
-            summarise(tot_votes = sum(candidatevotes)) |>
-            arrange(desc(tot_votes)) |>
-            slice_head(n = 10) |>
-            select(party)
-```
-
-We want to filter out the dataframe to only have parties from the top 10
+## House votes year by year
 
 ```{r}
 house_waffle <- house |>
-                  filter(party %in% top_10$party) |>
+                  filter(party %in% c("REPUBLICAN", "DEMOCRAT", "LIBERTARIAN")) |>
                   group_by(year, party) |>
-                  summarise(tot_votes = sum(candidatevotes)) 
+                  summarise(party_votes = sum(candidatevotes)) |>
+                  group_by(year) |>
+                  mutate(total_votes = sum(party_votes)) |>
+                  mutate(vote_ratio = round((party_votes / total_votes), digits = 2) * 100) |>
+                  select("year", "party", "vote_ratio") 
+
+view(house_waffle)
 ```
 
 Plot the data
 
 ```{r}
+election_colors <- c("DEMOCRAT" = "darkblue", "REPUBLICAN" = "firebrick", "LIBERTARIAN" = "#1c4d1a")
+```
+
+```{r}
 house_waffle |>
   ggplot() +
     geom_waffle(
-      aes(fill = party, values = tot_votes),
+      aes(fill = party, values = vote_ratio),
       color = "white",
       size = .5,
       n_rows = 10,
       flip = TRUE
+    ) +
+    facet_wrap(~ year, ncol = 6) +
+    scale_x_discrete(limits = "") +
+    coord_equal() +
+    scale_fill_manual(values = election_colors) +
+    theme(
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor.y = element_blank()
     )
+```
+
+## House seats year by year
+
+
+```{r}
+house_waffle <- house |>
+                  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) |>
+                  group_by(year, party) |>
+                  summarise(party_seats = n()) |>
+                  group_by(year) |>
+                  mutate(total_seats = sum(party_seats)) |>
+                  mutate(seat_ratio = round(party_seats / total_seats, digits = 2) * 100) |>
+                  select("year", "party", "seat_ratio")
+
+view(house_waffle)
+```
+
+```{r}
+house_plot <- house_waffle |>
+                  ggplot() +
+                    geom_waffle(
+                      aes(fill = party, values = seat_ratio),
+                      color = "white",
+                      size = .5,
+                      n_rows = 10,
+                      flip = TRUE
+                    ) +
+                    facet_wrap(
+                      ~ year, 
+                      ncol = 6,
+                      strip.position = "bottom"
+                    ) +
+                    scale_x_discrete(limits = "") +
+                    coord_equal() +
+                    scale_fill_manual(values = election_colors, name = "") +
+                    theme(
+                      panel.grid.major.x = element_blank(),
+                      panel.grid.minor.y = element_blank(),
+                      axis.text.y = element_blank(),
+                      axis.ticks.y = element_blank(),
+                      axis.ticks.x = element_blank(),
+                      legend.position = "top",
+                      plot.background = element_rect(fill = "#e4d4c6"),
+                      strip.background = element_rect(fill = "gray"),
+                      legend.background = element_rect(fill = "#e4d4c6"),
+                      panel.background = element_rect(fill = "#e4d4c6"),
+                      axis.line = element_line(color = "#e4d4c6")
+                    )
+house_plot
 ```
 
 
 
+```{r}
+ggsave("11-07-23/house_election.png", house_plot, width = 5, height = 5)
+```

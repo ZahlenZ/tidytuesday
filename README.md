@@ -8,9 +8,8 @@ TidyTuesday is a weekly data project aimed at the R ecosystem. The project was b
 This repository contain the R code used to produce my visualizations.
 
 ***
-US House Election Results
 
-### ### [2023/45](https://github.com/ZahlenZ/tidytuesday/tree/main/11-07-23)  Data: [House Election Results](https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-11-07/readme.md)🙋‍♀️
+### [2023/45](https://github.com/ZahlenZ/tidytuesday/tree/main/11-07-23)  Data: [House Election Results](https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-11-07/readme.md)🙋‍♀️
 
 ![./11-07-23/house_election.png](https://github.com/ZahlenZ/tidytuesday/blob/main/11-07-23/house_election.png)
 
