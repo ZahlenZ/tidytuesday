@@ -10,7 +10,7 @@ This repository contain the R code used to produce my visualizations.
 ***
 US House Election Results
 
-### ### [2023/45](https://github.com/ZahlenZ/tidytuesday/tree/main/11-07-23) 🙋‍♀️ House Election (https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-11-07/readme.md)
+### ### [2023/45](https://github.com/ZahlenZ/tidytuesday/tree/main/11-07-23) 🙋‍♀️ House Election (https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-11-07/readme.md) [House Election Results]
 
 ![./plots/2022_36/2022_36_LEGO_bricks_sd.png](https://raw.githubusercontent.com/Z3tt/TidyTuesday/main/plots/2022_36/2022_36_LEGO_bricks_sd.png)
 
