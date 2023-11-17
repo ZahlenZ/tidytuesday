@@ -1,0 +1,183 @@
+---
+title: House of Representatives
+author: Zahlen Zbinden
+output: pdf
+---
+
+```{r}
+#| warning: false
+#| echo: false
+library(dplyr)
+library(forcats)
+library(ggplot2)
+library(maps)
+library(RColorBrewer)
+library(tidyverse)
+library(tidytuesdayR)
+library(waffle)
+library(gt)
+
+item_color <- "#234F1E"
+background_color <- "#351E10"
+plot_item_color <- "#795C32"
+```
+
+## Load Data
+
+```{r}
+url = "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-11-07/house.csv"
+
+house <- read.csv(url)
+```
+
+## Explore Data
+
+Data set consists of elected officials to the house of representatives in the from 1976 to 2022, it countains attributes describing if the state was flipped, which district, if the election was a runoff, or special, which candidate won, what party they are a part of, Total Votes and Candidate votes.
+
+```{r}
+unique(house$office)
+```
+
+```{r}
+unique(house$year)
+```
+
+```{r}
+nrow(house)
+ncol(house)
+```
+
+```{r}
+length(unique(house$state))
+```
+
+## Wrangle Data
+
+
+```{r}
+house <- house |>
+          mutate(
+            party = ifelse(
+              party == "",
+              house$candidate,
+              party
+            )
+          ) |>
+          group_by(party) |>
+          mutate(tot_votes = sum(candidatevotes)) |>
+          ungroup() |>
+          mutate(
+            party = factor(
+              party,
+              levels = unique(party[order(desc(tot_votes))]),
+              ordered = TRUE
+            )
+          )
+```
+
+
+## Top 10 total elected officials by party from 1976 to present
+
+```{r}
+top_10 <- house |>
+            select("party") |>
+            group_by(party) |>
+            summarise(count = n()) |>
+            arrange(desc(count)) |>
+            slice(1:10)
+```
+
+```{r}
+ggplot(top_10, aes(x = count, y = fct_reorder(party, count))) +
+    geom_point(color = item_color, size = 4) +
+    geom_segment(
+        aes(
+          x = 0,
+          xend = count,
+          y = party,
+          yend = party
+        ),
+        size = 2,
+        color = item_color
+    ) +
+    scale_x_continuous(expand = expansion(mult = c(0, 0.1))) +
+    labs(
+      title = "Total house of rep party wins",
+      subtitle = "1976 to Current",
+      x = "Total Wins",
+      y = "Party",
+      caption = "Tidy Tuesday 11-07-2023"
+    )
+```
+
+## Top 3 parties by year
+
+```{r}
+top_3_yearly <- house %>%
+                  group_by(year, party) %>%
+                  summarise(count = n()) %>%
+                  filter(
+                    party == "DEMOCRAT" | party == "REPUBLICAN" | party == "LIBERTARIAN"
+                  ) 
+```
+
+```{r}
+election_colors <- c("DEMOCRAT" = "darkblue", "REPUBLICAN" = "firebrick", "LIBERTARIAN" = "#1c4d1a")
+ggplot(top_3_yearly, aes(x = year, y = count, fill = party)) +
+    geom_bar(
+      position = "stack", 
+      stat = "identity",
+      width = 1.5
+    ) +
+    labs(
+      x = "Year",
+      y = "Count",
+      caption = "Tidy Tuesday 11-07-2023"
+    ) +
+    scale_fill_manual(values = election_colors, name = "Party Affiliation") +
+    scale_x_continuous(
+      breaks = seq(from = 1976, to = 2022, by = 2),
+    ) + 
+    theme( 
+      axis.text.x = element_text(angle = 45, hjust = 1)
+    ) 
+```
+
+## House seats year by year
+
+Find top 10 parties by candidate votes
+
+```{r}
+top_10 <- house |>
+            group_by(party) |>
+            summarise(tot_votes = sum(candidatevotes)) |>
+            arrange(desc(tot_votes)) |>
+            slice_head(n = 10) |>
+            select(party)
+```
+
+We want to filter out the dataframe to only have parties from the top 10
+
+```{r}
+house_waffle <- house |>
+                  filter(party %in% top_10$party) |>
+                  group_by(year, party) |>
+                  summarise(tot_votes = sum(candidatevotes)) 
+```
+
+Plot the data
+
+```{r}
+house_waffle |>
+  ggplot() +
+    geom_waffle(
+      aes(fill = party, values = tot_votes),
+      color = "white",
+      size = .5,
+      n_rows = 10,
+      flip = TRUE
+    )
+```
+
+
+

@@ -1,0 +1,29 @@
+---
+author: Zahlen Zbinden 
+title: Taylor Swift
+output: pdf
+---
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(ggridges)
+library(tidytuesdayR)
+library(tidyverse)
+```
+
+## Dataset
+
+taylor_album_songs from tidytuesday, includes audio features of all songs on Taylors official studio albums, this exludes singles, and non-Taylor owned albums that have a Taylor-owned alternative.
+
+```{r}
+tues_data <- tidytuesdayR::tt_load(2023, week = 42)
+taylor <- tues_data$taylor_album_songs
+```
+
+
+```{r}
+head(taylor)
+```
+
+## 
