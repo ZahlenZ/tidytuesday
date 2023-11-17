@@ -14,6 +14,7 @@ knitr::opts_chunk$set(
     warning = FALSE
 )
 library(ggplot2)
+library(ggthemes)
 library(showtext)
 library(tidyverse)
 library(ggsankey)
@@ -38,6 +39,8 @@ languages <- languages |>
 
 ```{r}
 font_add_google("Roboto Mono", "robot")
+text_font <- "robot"
+text_col <- "grey"
 showtext_auto()
 ```
 
@@ -109,6 +112,7 @@ language_plot |>
         y = title,
         yend = title
       ),
+      color = text_col,
       size = 1
     ) +
     geom_point(
@@ -118,14 +122,67 @@ language_plot |>
       ),
       size = 5
     ) +
-    scale_x_log10() +
+    geom_richtext(
+      aes(x = 0, y = title, label = title),
+      hjust = 0,
+      label.margin = unit(c(0, 0, 0, .75), "lines"),
+      family = "robot",
+      size = 5,
+      fill = "transparent",
+      label.color = "transparent",
+      color = text_col
+    ) +
+    labs(
+      title = "Number of Jobs and Users",
+      subtitle = "Segmented by comment token",
+      y = "Language",
+      x = ""
+    ) +
+    scale_x_log10(
+      limits = c(1, 10000000),
+      breaks = c(6000, 300000, 6000000)
+    ) +
+    scale_y_discrete(limits = rev) +
     scale_shape_manual(
-      values = c(0, 1), 
-      labels = c("Number of Users", "Number of Jobs")
+      name = "",
+      values = c(15, 15), 
+      labels = c("Users", "Jobs")
     ) +
-    scale_color_manual(
-      values = c("red", "blue"), 
-      labels = c("Number of Users", "Number of Jobs")
+    scale_color_brewer(
+      name = "",
+      labels = c("Users", "Jobs"),
+      type = "qual",
+      palette = 7
     ) +
-    facet_wrap(~ label, nrow = 2, scales = "free_y")
+    guides(
+      shape = guide_legend(reverse = TRUE),
+      color = guide_legend(reverse = TRUE)
+    ) +
+    facet_wrap(~ label, nrow = 2, scales = "free_y") +
+    theme_minimal(
+      base_size = 15,
+      base_family = "robot"
+    ) +
+    theme(
+      plot.title = element_text(color = text_col),
+      plot.subtitle = element_text(color = text_col),
+      strip.text = element_text(color = text_col),
+      legend.title = element_text(color = text_col),
+      legend.text = element_text(color = text_col),
+      legend.position = "top",
+      axis.title = element_text(color = text_col),
+      axis.title.y = element_text(angle = 0, vjust = 0.5),
+      axis.ticks = element_blank(),
+      axis.text.x = element_text(color = text_col, angle = 45, vjust = .5),
+      axis.text.y = element_blank(),
+      plot.background = element_rect(fill = "black"),
+      panel.grid.major.y = element_blank(),
+      panel.grid.minor.x = element_blank(),
+      panel.spacing = unit(1, "cm"),
+      panel.background = element_rect(
+        fill = "grey5",
+        color = alpha(text_col),
+        linewidth = 2
+      )
+    )
 ```
