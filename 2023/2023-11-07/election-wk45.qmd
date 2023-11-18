@@ -138,6 +138,11 @@ house_plot <- house_waffle |>
                       n_rows = 10,
                       flip = TRUE
                     ) +
+                    labs(
+                      title = "House Seats 1976 to 2022",
+                      subtitle = "Republican vs Deomocrat",
+                      caption = "Week 45 tidytuesday dataset"
+                    ) +
                     facet_wrap(
                       ~ year, 
                       ncol = 6,
