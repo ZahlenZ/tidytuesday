@@ -152,23 +152,28 @@ house_plot <- house_waffle |>
                     coord_equal() +
                     scale_fill_manual(values = election_colors, name = "") +
                     theme(
-                      panel.grid.major.x = element_blank(),
-                      panel.grid.minor.y = element_blank(),
+                      axis.line = element_line(color = "#e4d4c6"),
+                      axis.ticks.x = element_blank(),
                       axis.text.y = element_blank(),
                       axis.ticks.y = element_blank(),
-                      axis.ticks.x = element_blank(),
-                      legend.position = "top",
-                      plot.background = element_rect(fill = "#e4d4c6"),
-                      strip.background = element_rect(fill = "gray"),
                       legend.background = element_rect(fill = "#e4d4c6"),
-                      panel.background = element_rect(fill = "#e4d4c6"),
-                      axis.line = element_line(color = "#e4d4c6")
+                      legend.position = "top",
+                      legend.text = element_text(size = 20),
+                      panel.background = element_rect(fill = "#e4d4c6", color = "#e4d4c6"),
+                      plot.background = element_rect(fill = "#e4d4c6", color = "#e4d4c6"),
+                      panel.grid.major.x = element_blank(),
+                      panel.grid.minor.y = element_blank(),
+                      plot.subtitle = element_text(size = 10),
+                      plot.title = element_text(size = 25),
+                      strip.background = element_rect(fill = "gray"),
+                      strip.text = element_text(size = 15),
                     )
 house_plot
+ggsave("2023/2023-11-07/house_election.png", house_plot, width = 5, height = 5)
 ```
 
 
 
 ```{r}
-ggsave("2023-11-07/house_election.png", house_plot, width = 5, height = 5)
+ggsave("2023/2023-11-07/house_election.png", house_plot, width = 5, height = 5)
 ```

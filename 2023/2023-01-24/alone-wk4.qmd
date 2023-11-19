@@ -1,0 +1,95 @@
+---
+author: "Zahlen Zbinden"
+title: "Alone"
+date: "11-19-2023"
+format: "pdf"
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+    echo = TRUE,
+    message = FALSE,
+    warning = FALSE
+)
+library(ggplot2)
+library(ggsankey)
+library(ggtext)
+library(pals)
+library(RColorBrewer)
+library(showtext)
+library(tibble)
+library(tidyverse)
+library(viridis)
+```
+
+## Load Data
+
+```{r}
+survivalists <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-01-24/survivalists.csv')
+```
+
+## Wrangle Data
+
+```{r}
+plt_data <- survivalists |>
+              select("gender", "age", "reason_category", "result") |>
+              mutate(reason_category = if_else(is.na(reason_category), "Winner", reason_category)) |>
+              mutate(result = as.numeric(result)) |> 
+              mutate(age_group = case_when(
+                age <= 30 ~ "<30",
+                age > 30 & age < 40 ~ "Thirties",
+                age >= 40 & age < 50 ~ "Fourties",
+                age >= 50 & age < 60 ~ "Fifties",
+                age >= 60 ~ ">60"
+              )) |>
+              make_long(age_group, reason_category, gender, result) |>
+              mutate(
+                node = factor(node),
+                node = fct_relevel(
+                  node, 
+                  c("10", "9", "8", "7", "6", "5", "4", "3", "2", "1")
+                ),
+                node = fct_relevel(
+                  node, 
+                  c("&lt30", "Thirties", "Fourties", "Fifties", "&gt60")
+                )
+              )
+```
+
+```{r}
+label_data <- tibble(
+  x = 
+)
+```
+
+## Plot
+
+```{r}
+plt_data |>
+  ggplot(
+    aes(
+      x = x,
+      next_x = next_x,
+      node = node,
+      next_node = next_node,
+      fill = factor(node),
+      label = node
+    )
+  ) +
+  geom_sankey(
+    flow.alpha = 0.8,
+    linewidth = 0.1,
+  ) +
+  geom_sankey_label(
+    size = 5,
+    color = "white",
+    fill = "gray40"
+  ) +
+  geom_richtext(
+    aes(y = -100, label = c("age", "reason", "gender", "result"))
+  ) +
+  scale_fill_manual(values = unname(alphabet())) +
+  theme(
+    legend.position = "none"
+  ) 
+```

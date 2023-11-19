@@ -56,40 +56,42 @@ fp <- fuck_plot |>
             key_glyph = "text"
           ) +
           labs(
-            caption = "Size based on number of FUCKS said by Roy Kent \n 
-            per episode of Ted Lasso \n
-            Week 39 tidytuesday dataset"
+            caption = "Size based on number of FUCKS said by Roy Kent \n per episode of Ted Lasso "
           )+
           scale_size_area(max_size = 40) +
           scale_color_manual(
-            labels = c("Hell No", "Hell Yea"), 
+            labels = c("No", "Yea"), 
             values = c("black", "#e0218a"), 
             name = "Is Roy Dating Keeley?"
           ) +
           coord_cartesian(
             expand = FALSE
           )  +
-          guides(size = "none") +
+          guides(
+            size = "none",
+            color = guide_legend(override.aes = list(label = "FUCK"))
+          ) +
           theme(
-            plot.margin = margin(0, 0, 0, 0),
-            legend.position = c(0.5, .2),
-            plot.background = element_rect(color = "white"),
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(),
-            panel.background = element_blank(),
             axis.text = element_blank(),
             axis.ticks = element_blank(),
             axis.title = element_blank(),
             legend.key = element_blank(),
             legend.margin = margin(0, 0, 0, 0),
-            legend.title = element_text(size = 20, family = "os"),
+            legend.position = c(0.5, .15),
             legend.text = element_text(size = 15, family = "os"),
+            legend.title = element_text(size = 20, family = "os"),
+            legend.title.align = 0.5,
+            panel.background = element_blank(),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            plot.background = element_rect(color = "white"),
             plot.caption = element_text(
               hjust = 0.5, 
               vjust = 30, 
-              size = 20, 
+              size = 10, 
               family = "os"
-            )
+            ),
+            plot.margin = margin(0, 0, 0, 0),
           )
 fp
 ```

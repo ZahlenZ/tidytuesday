@@ -1,0 +1,111 @@
+---
+author: "Zahlen Zbinden"
+title: "Bob Ross Paintings"
+date: "11-08-2023"
+format: pdf
+---
+
+## Setup
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+    echo = TRUE,
+    message = FALSE,
+    warning = FALSE
+)
+library(tidyverse)
+library(showtext)
+library(camcorder)
+library(ggtext)
+library(glue)
+library(ggsankey)
+```
+
+## Load Data
+
+```{r}
+tuesdata <- tidytuesdayR::tt_load(2023, week = 8)
+ross <- tuesdata$bob_ross
+```
+
+## Wrangle Data
+
+```{r}
+color_lookup <- ross |>
+                  select(colors, color_hex) |>
+                  distinct() |>
+                  mutate(colors = str_remove_all(colors, "\\[")) |>
+                  mutate(colors = str_remove_all(colors, "\\]")) |>
+                  mutate(colors = str_remove_all(colors, "'")) |>
+                  mutate(colors = str_remove_all(colors, "\\\\n")) |>
+                  mutate(colors = str_remove_all(colors, "\\\\r")) |>
+                  mutate(color_hex = str_remove_all(color_hex, "\\[")) |>
+                  mutate(color_hex = str_remove_all(color_hex, "\\]")) |>
+                  mutate(color_hex = str_remove_all(color_hex, "'")) |>
+                  mutate(colors = strsplit(colors, ",")) |>
+                  mutate(color_hex = strsplit(color_hex, ", ")) |>
+                  unnest(c(colors, color_hex)) |>
+                  distinct() |>
+                  mutate(colors = str_trim(colors))
+```
+
+```{r}
+plot_data <- ross |>
+              select(c(season, Black_Gesso:Alizarin_Crimson)) |>
+              group_by(season) |>
+              summarise(
+                across(Black_Gesso:Alizarin_Crimson, ~ sum(.x, na.rm = TRUE))
+              ) |>
+              pivot_longer(
+                cols = -season,
+                names_to = "colors",
+                values_to = "n"
+              ) |>
+              mutate(colors = str_replace_all(colors, "_", " ")) |>
+              left_join(color_lookup, by = "colors", multiple = "all")
+```
+
+## Plot
+
+
+```{r}
+plot_data |>
+  ggplot(
+    aes(
+      x = season,
+      value = n,
+      node = colors,
+      fill = I(color_hex)
+    )
+  ) +
+    geom_sankey_bump(
+      space = 1,
+      color = "transparent",
+      smooth = 6,
+      alpha = 0.8
+    ) +
+    labs(
+      title = "Bob Ross Paintings",
+    ) +
+    theme_void() +
+    theme(
+      text = element_text(
+        colour = "#546666"
+      ),
+      plot.margin = margin(5, 10, 5, 10),
+      plot.title = element_text(
+        size = 60,
+        hjust = 0.5,
+        colour = "#2F4F4F",
+        margin = unit(c(0.5, 0, 0.5, 0), "cm")
+      ),
+      plot.caption = element_markdown(
+        size = 30,
+        lineheight = 0.4,
+        hjust = 0.5,
+        margin = unit(c(0, 0, 0.5, 0), "cm")
+      ),
+      plot.background = element_rect(fill = "#F0F5F5", colour = "#F0F5F5"),
+      panel.background = element_rect(fill = "#F0F5F5", colour = "#F0F5F5")
+    )
+```
