@@ -3,9 +3,15 @@
 </h1>
 
 
-TidyTuesday is a weekly data project aimed at the R ecosystem. The project was borne out of the R4DS Online Learning Community and the R for Data Science textbook, with an emphasis on understanding how to summarize and arrange data to make meaningful charts with ggplot2, tidyr, dplyr, and other tools in the tidyverse ecosystem. Check it out at: [github.com/rfordatascience/tidytuesday](https://github.com/rfordatascience/tidytuesday/blob/master/README.md). 
+TidyTuesday is a weekly data project aimed at the R ecosystem. The project was born out of the R4DS Online Learning Community and the R for Data Science textbook, with an emphasis on understanding how to summarize and arrange data to make meaningful charts with ggplot2, tidyr, dplyr, and other tools in the tidyverse ecosystem. Check it out at: [github.com/rfordatascience/tidytuesday](https://github.com/rfordatascience/tidytuesday/blob/master/README.md). 
 
 This repository contains the R code used to produce my visualizations.
+
+***
+
+### [2023/4](https://github.com/ZahlenZ/tidytuesday/tree/main/2023/2023-01-24) Data:🪓[Alone](https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-01-24/readme.md)
+
+![./2023/2023-01-24/along.png](https://github.com/ZahlenZ/tidytuesday/blob/main/2023/2023-01-24/alone.png)
 
 ***
 

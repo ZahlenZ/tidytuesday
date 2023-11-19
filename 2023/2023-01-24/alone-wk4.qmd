@@ -28,6 +28,18 @@ library(viridis)
 survivalists <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-01-24/survivalists.csv')
 ```
 
+
+## Fonts and Colors
+
+```{r}
+font_add_google("Caveat", "cave")
+txt_font = "cave"
+
+bg_col = "grey10"
+txt_col = "white"
+highlight_col = "grey40"
+```
+
 ## Wrangle Data
 
 ```{r}
@@ -42,7 +54,13 @@ plt_data <- survivalists |>
                 age >= 50 & age < 60 ~ "Fifties",
                 age >= 60 ~ ">60"
               )) |>
-              make_long(age_group, reason_category, gender, result) |>
+              mutate(
+                "Age Group" = age_group,
+                "Reason for Leaving" = reason_category,
+                "Gender" = gender,
+                "Result" = result
+              ) |>
+              make_long("Age Group", "Reason for Leaving", "Gender", "Result") |>
               mutate(
                 node = factor(node),
                 node = fct_relevel(
@@ -51,45 +69,68 @@ plt_data <- survivalists |>
                 ),
                 node = fct_relevel(
                   node, 
-                  c("&lt30", "Thirties", "Fourties", "Fifties", "&gt60")
+                  c(">60", "Fifties", "Fourties", "Thirties", "<30")
                 )
               )
 ```
 
-```{r}
-label_data <- tibble(
-  x = 
-)
-```
 
 ## Plot
 
 ```{r}
-plt_data |>
-  ggplot(
-    aes(
-      x = x,
-      next_x = next_x,
-      node = node,
-      next_node = next_node,
-      fill = factor(node),
-      label = node
-    )
-  ) +
-  geom_sankey(
-    flow.alpha = 0.8,
-    linewidth = 0.1,
-  ) +
-  geom_sankey_label(
-    size = 5,
-    color = "white",
-    fill = "gray40"
-  ) +
-  geom_richtext(
-    aes(y = -100, label = c("age", "reason", "gender", "result"))
-  ) +
-  scale_fill_manual(values = unname(alphabet())) +
-  theme(
-    legend.position = "none"
-  ) 
+plt <- plt_data |>
+          ggplot(
+            aes(
+              x = x,
+              next_x = next_x,
+              node = node,
+              next_node = next_node,
+              fill = factor(node),
+              label = node
+            )
+          ) +
+          geom_sankey(
+            node.color = "white",
+            flow.alpha = 0.8,
+            linewidth = 0.25,
+            color = "white"
+          ) +
+          geom_sankey_label(
+            size = 7,
+            color = "white",
+            fill = highlight_col
+          ) +
+          labs(
+            title = "Contestants on Alone",
+            caption = "TidyTuesday 2023 week 4"
+          ) +
+          scale_fill_manual(values = unname(polychrome())) +
+          theme(
+            plot.title = element_text(
+              family = txt_font, 
+              size = 50,
+              hjust = 0.5,
+              vjust = 0.5,
+              color = txt_col
+            ),
+            plot.caption = element_text(family = txt_font, color = "white", size = 15),
+            plot.background = element_rect(fill = bg_col, color = bg_col),
+            panel.background = element_rect(fill = bg_col, color = bg_col),
+            panel.grid = element_blank(),
+            axis.ticks = element_blank(),
+            axis.title = element_blank(),
+            axis.text.y = element_blank(),
+            axis.text.x = element_text(
+              family = txt_font,
+              size = 40,
+              color = txt_col
+            ),
+            legend.position = "none"
+          ) 
+plt
+```
+
+
+```{r}
+ggsave("2023/2023-01-24/alone.png", plt, width = 7, height = 5)
 ```
